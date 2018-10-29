@@ -36,4 +36,15 @@ class BlogPostManager
 
         //  do more staff if needed after adding new post
     }
+
+    /**
+     * @param BlogPost $blogPost
+     * @throws \Doctrine\ORM\OptimisticLockException
+     */
+    public function edit(BlogPost $blogPost)
+    {
+        $this->blogPostRepository->update($blogPost);
+
+        //  do more staff if needed after updating
+    }
 }

@@ -63,6 +63,36 @@ class BlogPostController extends FOSRestController
         return (new FormException(406, $form))->response();
     }
 
+    /**
+     * @ApiDoc(
+     *     section="Edit Blog Post",
+     *     description="Edit Post BLOG"
+     * )
+     *
+     * @Rest\Route(name="api.blog_post.edit", path="/blog-post/{blogPost}")
+     * @Rest\View(statusCode=202)
+     * @Method("PUT")
+     *
+     * @param Request $request
+     * @param BlogPost $blogPost
+     * @return \FOS\RestBundle\View\View|\Symfony\Component\HttpFoundation\Response
+     */
+    public function putAction(Request $request, BlogPost $blogPost)
+    {
+        $form = $this->createForm(BlogPostType::class, $blogPost, [
+            'method' => 'put'
+        ]);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $manager = $this->get('manager.blog.post');
+            $manager->edit($blogPost);
+            return $this->view($blogPost);
+        }
+
+        return (new FormException(406, $form))->response();
+    }
+
 
     /**
      * @ApiDoc(
