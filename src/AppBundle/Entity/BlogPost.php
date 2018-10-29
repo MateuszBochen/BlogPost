@@ -37,6 +37,7 @@ class BlogPost
 
     /**
      * @var array
+     * @Assert\NotBlank()
      * @ORM\Column(type="json_array")
      */
     private $tags = [];

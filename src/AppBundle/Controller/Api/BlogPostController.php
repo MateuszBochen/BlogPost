@@ -3,6 +3,7 @@
 namespace AppBundle\Controller\Api;
 
 use AppBundle\Exception\TargetNotExistsException;
+use AppBundle\Form\TagType;
 use AppBundle\Helpers\FormException;
 use AppBundle\Entity\BlogPost;
 use AppBundle\Form\BlogPostType;
@@ -129,8 +130,47 @@ class BlogPostController extends FOSRestController
 
         $blogPostPublisher->publish($targetService, $post);
 
-        // todo: implement this
-
         return $this->view($post);
+    }
+
+
+    /**
+     * @ApiDoc(
+     *     section="Adding tags for Blog Post",
+     *     description="Adding tags for Blog Post, Remove old and add new"
+     * )
+     *
+     * @Rest\Route(name="api.blog_post.tags", path="/blog-post/{blogPost}/tag")
+     * @Rest\View(statusCode=202)
+     * @Method("PATCH")
+     *
+     * @param Request $request
+     * @param BlogPost $blogPost
+     * @return \FOS\RestBundle\View\View|\Symfony\Component\HttpFoundation\Response
+     */
+    public function tagsAction(Request $request, BlogPost $blogPost)
+    {
+        $form = $this->createForm(TagType::class, null, [
+            'method' => 'patch'
+        ]);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+
+            $tagAsString = $form->get('tag')->getViewData();
+            $tagAsArray = explode(';', $tagAsString);
+
+            array_walk($tagAsArray, function(&$item) {
+                $item = trim($item);
+            });
+
+            $blogPost->setTags($tagAsArray);
+
+            $manager = $this->get('manager.blog.post');
+            $manager->edit($blogPost);
+            return $this->view($blogPost);
+        }
+
+        return (new FormException(406, $form))->response();
     }
 }
