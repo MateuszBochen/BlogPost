@@ -36,7 +36,7 @@ security:
                 require_previous_session: false
         api:
             pattern: ^/api
-            anonymous: true
+            anonymous: false
             stateless: true
             guard:
                 authenticators:
@@ -50,4 +50,8 @@ security:
 
             # https://symfony.com/doc/current/security/form_login_setup.html
             #form_login: ~
+
+    access_control:
+    - { path: ^/api, roles: ROLE_ADMIN, methods: [POST, PUT, PATCH] }
+    - { path: ^/api, roles: [ROLE_ADMIN, ROLE_USER], methods: [GET] }
 
