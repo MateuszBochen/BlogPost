@@ -7,3 +7,16 @@ services:
     class: AppBundle\Entity\Repository\BlogPostRepository
     factory: ["@doctrine", getRepository]
     arguments: [AppBundle:BlogPost]
+
+  service.blog.post.publisher:
+    class: AppBundle\Services\BlogPostPublisher
+    arguments: [!tagged onPublishPost, '@repository.blog.post']
+
+  service.publisher.facebook:
+    class: AppBundle\Services\PublishOnFacebook
+  service.publisher.twitter:
+    class: AppBundle\Services\PublishOnTwitter
+
+  service.send.Notification:
+    class: AppBundle\Services\SendNotification
+    tags: ['onPublishPost']

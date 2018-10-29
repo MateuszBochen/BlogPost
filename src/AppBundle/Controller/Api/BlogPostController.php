@@ -2,13 +2,17 @@
 
 namespace AppBundle\Controller\Api;
 
+use AppBundle\Exception\TargetNotExistsException;
 use AppBundle\Helpers\FormException;
 use AppBundle\Entity\BlogPost;
 use AppBundle\Form\BlogPostType;
+use AppBundle\Interfaces\ThirdPartyPublish;
+use AppBundle\Services\BlogPostPublisher;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Controller\FOSRestController;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
+use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 use Symfony\Component\HttpFoundation\Request;
 
 
@@ -102,14 +106,31 @@ class BlogPostController extends FOSRestController
      * @Rest\Route(name="api.blog_post.publish", path="/blog-post/{post}/{target}")
      * @Method("POST")
      * @param BlogPost $post
-     * @param $target
+     * @param string $target
      *
      * @return \FOS\RestBundle\View\View
+     * @throws TargetNotExistsException
+     * @throws \AppBundle\Exception\BlogPostPublisherException
      */
-    public function publishPostAction(BlogPost $post, $target)
+    public function publishPostAction(BlogPost $post, string $target)
     {
+        try {
+            $targetService = $this->get('service.publisher.' . strtolower($target));
+        } catch (ServiceNotFoundException $e) {
+            throw new TargetNotExistsException();
+        }
+
+        if(!($targetService instanceof ThirdPartyPublish)) {
+            throw new TargetNotExistsException();
+        }
+
+        /** @var BlogPostPublisher $blogPostPublisher*/
+        $blogPostPublisher = $this->get('service.blog.post.publisher');
+
+        $blogPostPublisher->publish($targetService, $post);
+
         // todo: implement this
 
-        return $this->view();
+        return $this->view($post);
     }
 }
