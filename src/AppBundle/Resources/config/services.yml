@@ -1,0 +1,9 @@
+services:
+  manager.blog.post:
+    class: AppBundle\Manager\BlogPostManager
+    arguments: ['@repository.blog.post']
+
+  repository.blog.post:
+    class: AppBundle\Entity\Repository\BlogPostRepository
+    factory: ["@doctrine", getRepository]
+    arguments: [AppBundle:BlogPost]
