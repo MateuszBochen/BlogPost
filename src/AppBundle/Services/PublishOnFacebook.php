@@ -15,7 +15,7 @@ use AppBundle\Interfaces\ThirdPartyPublish;
 class PublishOnFacebook implements ThirdPartyPublish
 {
 
-    public function publicPost(BlogPost $blogPost)
+    public function publicPost(BlogPost $blogPost) : bool
     {
         // TODO: Implement publicPost() method.
 

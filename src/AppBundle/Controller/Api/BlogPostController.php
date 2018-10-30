@@ -7,7 +7,6 @@ use AppBundle\Form\TagType;
 use AppBundle\Helpers\FormException;
 use AppBundle\Entity\BlogPost;
 use AppBundle\Form\BlogPostType;
-use AppBundle\Interfaces\ThirdPartyPublish;
 use AppBundle\Services\BlogPostPublisher;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Controller\FOSRestController;
@@ -15,10 +14,12 @@ use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 use Symfony\Component\HttpFoundation\Request;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 
 
 /**
  * Class BlogPostController.
+ * @Security("has_role('ROLE_ADMIN') or has_role('ROLE_USER')")
  */
 class BlogPostController extends FOSRestController
 {
@@ -41,6 +42,7 @@ class BlogPostController extends FOSRestController
     }
 
     /**
+     * @Security("has_role('ROLE_ADMIN')")
      * @ApiDoc(
      *     section="Blog Post",
      *     description="Adding new Blog Post"
@@ -69,6 +71,7 @@ class BlogPostController extends FOSRestController
     }
 
     /**
+     * @Security("has_role('ROLE_ADMIN')")
      * @ApiDoc(
      *     section="Edit Blog Post",
      *     description="Edit Post BLOG"
@@ -100,6 +103,7 @@ class BlogPostController extends FOSRestController
 
 
     /**
+     * @Security("has_role('ROLE_ADMIN')")
      * @ApiDoc(
      *     section="Blog Post",
      *     description="Publish post to specified target"
@@ -111,30 +115,23 @@ class BlogPostController extends FOSRestController
      *
      * @return \FOS\RestBundle\View\View
      * @throws TargetNotExistsException
-     * @throws \AppBundle\Exception\BlogPostPublisherException
      */
     public function publishPostAction(BlogPost $post, string $target)
     {
         try {
-            $targetService = $this->get('service.publisher.' . strtolower($target));
+            /** @var BlogPostPublisher $blogPostPublisher */
+            $blogPostPublisher = $this->get($target);
+            $blogPostPublisher->publish($post);
+            return $this->view($post);
+
         } catch (ServiceNotFoundException $e) {
             throw new TargetNotExistsException();
         }
-
-        if(!($targetService instanceof ThirdPartyPublish)) {
-            throw new TargetNotExistsException();
-        }
-
-        /** @var BlogPostPublisher $blogPostPublisher*/
-        $blogPostPublisher = $this->get('service.blog.post.publisher');
-
-        $blogPostPublisher->publish($targetService, $post);
-
-        return $this->view($post);
     }
 
 
     /**
+     * @Security("has_role('ROLE_ADMIN')")
      * @ApiDoc(
      *     section="Adding tags for Blog Post",
      *     description="Adding tags for Blog Post, Remove old and add new"
@@ -150,22 +147,12 @@ class BlogPostController extends FOSRestController
      */
     public function tagsAction(Request $request, BlogPost $blogPost)
     {
-        $form = $this->createForm(TagType::class, null, [
+        $form = $this->createForm(TagType::class, $blogPost, [
             'method' => 'patch'
         ]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-
-            $tagAsString = $form->get('tag')->getViewData();
-            $tagAsArray = explode(';', $tagAsString);
-
-            array_walk($tagAsArray, function(&$item) {
-                $item = trim($item);
-            });
-
-            $blogPost->setTags($tagAsArray);
-
             $manager = $this->get('manager.blog.post');
             $manager->edit($blogPost);
             return $this->view($blogPost);

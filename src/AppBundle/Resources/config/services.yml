@@ -8,15 +8,23 @@ services:
     factory: ["@doctrine", getRepository]
     arguments: [AppBundle:BlogPost]
 
-  service.blog.post.publisher:
-    class: AppBundle\Services\BlogPostPublisher
-    arguments: [!tagged onPublishPost, '@repository.blog.post']
 
-  service.publisher.facebook:
+  factory:
+    class: AppBundle\Factory\PublisherFactory
+    arguments: [!tagged onPublishPost]
+    share: false
+
+  facebook:
     class: AppBundle\Services\PublishOnFacebook
-  service.publisher.twitter:
+    factory: ['@factory', createPublisher]
+    arguments: [AppBundle\Services\PublishOnFacebook]
+
+  twitter:
     class: AppBundle\Services\PublishOnTwitter
+    factory: ['@factory', createPublisher]
+    arguments: [AppBundle\Services\PublishOnTwitter]
 
   service.send.Notification:
-    class: AppBundle\Services\SendNotification
-    tags: ['onPublishPost']
+      class: AppBundle\Services\SendNotification
+      tags: ['onPublishPost']
+

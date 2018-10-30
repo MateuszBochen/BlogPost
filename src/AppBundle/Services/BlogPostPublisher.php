@@ -17,31 +17,30 @@ use AppBundle\Interfaces\ThirdPartyPublish;
 
 class BlogPostPublisher
 {
-
-    private $blogPostRepository;
     private $handlersServices;
+    private $target;
 
     /**
      * BlogPostPublisher constructor.
+     * @param ThirdPartyPublish $target
      * @param iterable $handlersServices
-     * @param BlogPostRepository $blogPostRepository
      */
-    public function __construct(iterable $handlersServices, BlogPostRepository $blogPostRepository)
+    public function __construct(ThirdPartyPublish $target, iterable $handlersServices)
     {
         $this->handlersServices = $handlersServices;
-        $this->blogPostRepository = $blogPostRepository;
+        $this->target = $target;
+    }
+
+    public function setTarget(string $target) {
+        $this->targrt = new $target();
     }
 
     /**
-     * @param ThirdPartyPublish $thirdPartyPublishService
      * @param BlogPost $blogPost
-     * @throws BlogPostPublisherException
      */
-    public function publish(ThirdPartyPublish $thirdPartyPublishService, BlogPost $blogPost) {
-        if(!$thirdPartyPublishService->publicPost($blogPost)) {
-            throw new BlogPostPublisherException('Unable add post');
-        }
-        $this->runAllTaggedServices($thirdPartyPublishService);
+    public function publish(BlogPost $blogPost) {
+        $this->target->publicPost($blogPost);
+        $this->runAllTaggedServices($this->target);
     }
 
     /**

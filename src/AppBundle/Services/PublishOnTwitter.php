@@ -15,8 +15,9 @@ use AppBundle\Interfaces\ThirdPartyPublish;
 class PublishOnTwitter implements ThirdPartyPublish
 {
 
-    public function publicPost(BlogPost $blogPost)
+    public function publicPost(BlogPost $blogPost) : bool
     {
         // TODO: Implement publicPost() method.
+        return false;
     }
 }

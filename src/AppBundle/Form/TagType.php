@@ -8,7 +8,10 @@
 
 namespace AppBundle\Form;
 
+use AppBundle\DataTransformer\StringTagToArrayTransformer;
+use AppBundle\Entity\BlogPost;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\CallbackTransformer;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -21,7 +24,11 @@ class TagType extends AbstractType
      */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $builder->add('tag', TextType::class);
+        $builder->add('tags', TextType::class);
+            // ->addModelTransformer(new StringTagToArrayTransformer());
+
+        $builder->get('tags')->addModelTransformer(new StringTagToArrayTransformer());
+
     }
 
     /**
@@ -30,6 +37,7 @@ class TagType extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults(array(
+            'data_class' => BlogPost::class,
             'csrf_protection' => false,
         ));
     }

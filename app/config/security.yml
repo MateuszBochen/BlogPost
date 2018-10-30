@@ -28,7 +28,6 @@ security:
             logout: true
             anonymous: ~
             stateless: true
-            anonymous: ~
             form_login:
                 check_path:               /api/login_check
                 success_handler:          lexik_jwt_authentication.handler.authentication_success
@@ -36,7 +35,7 @@ security:
                 require_previous_session: false
         api:
             pattern: ^/api
-            anonymous: false
+            anonymous: true
             stateless: true
             guard:
                 authenticators:
@@ -51,7 +50,7 @@ security:
             # https://symfony.com/doc/current/security/form_login_setup.html
             #form_login: ~
 
-    access_control:
-    - { path: ^/api, roles: ROLE_ADMIN, methods: [POST, PUT, PATCH] }
-    - { path: ^/api, roles: [ROLE_ADMIN, ROLE_USER], methods: [GET] }
+    #access_control:
+    #- { path: ^/api, roles: ROLE_ADMIN, methods: [POST, PUT, PATCH] }
+    #- { path: ^/api, roles: [ROLE_ADMIN, ROLE_USER], methods: [GET] }
 

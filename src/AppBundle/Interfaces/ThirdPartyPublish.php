@@ -13,5 +13,5 @@ use AppBundle\Entity\BlogPost;
 
 interface ThirdPartyPublish
 {
-    public function publicPost(BlogPost $blogPost);
+    public function publicPost(BlogPost $blogPost) : bool;
 }

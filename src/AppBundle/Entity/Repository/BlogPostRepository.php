@@ -12,6 +12,7 @@ class BlogPostRepository extends EntityRepository
 {
     /**
      * @param BlogPost $entity
+     * @throws \Doctrine\ORM\ORMException
      * @throws \Doctrine\ORM\OptimisticLockException
      */
     public function save(BlogPost $entity)
@@ -22,6 +23,7 @@ class BlogPostRepository extends EntityRepository
 
     /**
      * @param BlogPost $entity
+     * @throws \Doctrine\ORM\ORMException
      * @throws \Doctrine\ORM\OptimisticLockException
      */
     public function update(BlogPost $entity)
@@ -32,6 +34,7 @@ class BlogPostRepository extends EntityRepository
 
     /**
      * @param BlogPost $entity
+     * @throws \Doctrine\ORM\ORMException
      * @throws \Doctrine\ORM\OptimisticLockException
      */
     public function remove(BlogPost $entity)
