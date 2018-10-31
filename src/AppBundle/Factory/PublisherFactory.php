@@ -9,15 +9,15 @@
 namespace AppBundle\Factory;
 
 
+use AppBundle\Exception\TargetNotExistsException;
 use AppBundle\Services\BlogPostPublisher;
+use AppBundle\Interfaces\PublisherFactory as PublisherFactoryInterface;
 
-
-class PublisherFactory
+class PublisherFactory implements PublisherFactoryInterface
 {
-
     private $tags;
 
-    public function __construct($tags)
+    public function __construct(iterable $tags)
     {
         $this->tags = $tags;
     }
@@ -25,9 +25,14 @@ class PublisherFactory
     /**
      * @param $target
      * @return BlogPostPublisher
+     * @throws TargetNotExistsException
      */
-    public function createPublisher($target)
+    public function createPublisher(string $target)
     {
+        if(!class_exists($target)) {
+            throw new TargetNotExistsException();
+        }
+
         $newsletterManager = new BlogPostPublisher(new $target, $this->tags);
         return $newsletterManager;
     }

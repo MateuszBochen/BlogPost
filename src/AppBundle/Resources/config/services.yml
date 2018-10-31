@@ -15,12 +15,12 @@ services:
     share: false
 
   facebook:
-    class: AppBundle\Services\PublishOnFacebook
+    class: AppBundle\Factory\PublisherFactory
     factory: ['@factory', createPublisher]
     arguments: [AppBundle\Services\PublishOnFacebook]
 
   twitter:
-    class: AppBundle\Services\PublishOnTwitter
+    class: AppBundle\Factory\PublisherFactory
     factory: ['@factory', createPublisher]
     arguments: [AppBundle\Services\PublishOnTwitter]
 
