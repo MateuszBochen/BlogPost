@@ -2,6 +2,7 @@
 
 namespace AppBundle\Form;
 
+use AppBundle\DataTransformer\StringTagToArrayTransformer;
 use AppBundle\Entity\BlogPost;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -15,6 +16,7 @@ class BlogPostType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder->add('title')->add('content')->add('tags');
+        $builder->get('tags')->addModelTransformer(new StringTagToArrayTransformer());
     }
     
     /**

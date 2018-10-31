@@ -77,8 +77,11 @@ class StringTagToArrayTransformer implements DataTransformerInterface
      */
     public function reverseTransform($value)
     {
-        $tagAsArray = explode(',', $value);
+        if(is_array($value)) {
+            return $value;
+        }
 
+        $tagAsArray = explode(',', $value);
         array_walk($tagAsArray, function(&$item) {
             $item = trim($item);
         });

@@ -147,7 +147,7 @@ class BlogPostController extends FOSRestController
      */
     public function tagsAction(Request $request, BlogPost $blogPost)
     {
-        $form = $this->createForm(TagType::class, $blogPost, [
+        $form = $this->createForm(BlogPostType::class, $blogPost, [
             'method' => 'patch'
         ]);
         $form->handleRequest($request);
