@@ -12,14 +12,13 @@ use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Controller\FOSRestController;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 
 
 /**
  * Class BlogPostController.
- * @Security("has_role('ROLE_ADMIN') or has_role('ROLE_USER')")
+ * Security("has_role('ROLE_ADMIN') or has_role('ROLE_USER')")
  */
 class BlogPostController extends FOSRestController
 {
@@ -115,18 +114,16 @@ class BlogPostController extends FOSRestController
      *
      * @return \FOS\RestBundle\View\View
      * @throws TargetNotExistsException
+     * @throws \AppBundle\Exception\BlogPostPublisherException
+     * @throws \AppBundle\Exception\TargetIsNotCompatibleException
      */
     public function publishPostAction(BlogPost $post, string $target)
     {
-        try {
-            /** @var BlogPostPublisher $blogPostPublisher */
-            $blogPostPublisher = $this->get($target);
-            $blogPostPublisher->publish($post);
-            return $this->view($post);
-
-        } catch (ServiceNotFoundException $e) {
-            throw new TargetNotExistsException();
-        }
+        /** @var BlogPostPublisher $blogPostPublisher */
+        $blogPostPublisher = $this->get('publisher');
+        $blogPostPublisher->setTarget($target);
+        $blogPostPublisher->publish($post);
+        return $this->view($post);
     }
 
 

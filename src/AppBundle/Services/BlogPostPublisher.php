@@ -10,36 +10,58 @@ namespace AppBundle\Services;
 
 
 use AppBundle\Entity\BlogPost;
-use AppBundle\Entity\Repository\BlogPostRepository;
 use AppBundle\Exception\BlogPostPublisherException;
+use AppBundle\Exception\TargetIsNotCompatibleException;
+use AppBundle\Exception\TargetNotExistsException;
 use AppBundle\Interfaces\OnPublishPost;
 use AppBundle\Interfaces\ThirdPartyPublish;
+use Psr\Container\ContainerInterface;
 
 class BlogPostPublisher
 {
     private $handlersServices;
+
+    /** @var ThirdPartyPublish */
     private $target;
+
+    /** @var ContainerInterface */
+    private $container;
 
     /**
      * BlogPostPublisher constructor.
-     * @param ThirdPartyPublish $target
+     * @param ContainerInterface $container
      * @param iterable $handlersServices
      */
-    public function __construct(ThirdPartyPublish $target, iterable $handlersServices)
+    public function __construct(ContainerInterface $container, iterable $handlersServices)
     {
         $this->handlersServices = $handlersServices;
-        $this->target = $target;
+        $this->container = $container;
     }
 
+    /**
+     * @param string $target
+     * @throws TargetNotExistsException
+     * @throws TargetIsNotCompatibleException
+     */
     public function setTarget(string $target) {
-        $this->targrt = new $target();
+        if($this->container->has($target)) {
+            $this->target = $this->container->get($target);
+            if (!($this->target instanceof ThirdPartyPublish)) {
+                throw new TargetIsNotCompatibleException();
+            }
+        } else {
+            throw new TargetNotExistsException();
+        }
     }
 
     /**
      * @param BlogPost $blogPost
+     * @throws BlogPostPublisherException
      */
     public function publish(BlogPost $blogPost) {
-        $this->target->publicPost($blogPost);
+        if (!$this->target->publicPost($blogPost)) {
+            throw new BlogPostPublisherException();
+        }
         $this->runAllTaggedServices($this->target);
     }
 
